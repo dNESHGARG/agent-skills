@@ -30,3 +30,16 @@ The validator checks naming, metadata, and minimum document structure. It **does
 ## Next
 
 Add repository-backed evaluation fixtures with expected findings and false-positive checks; run skills against real pull requests and compare their outputs with a review rubric.
+
+
+## Evaluation harness
+
+Four synthetic review fixtures and their answer keys live in [evaluations](evaluations/README.md). A reviewer can submit structured JSON and receive a rubric score:
+
+```bash
+python scripts/validate_evaluations.py
+python scripts/score_review.py evaluations/sample-review.json
+python -m unittest discover -s tests -v
+```
+
+The scorer checks expected finding IDs and response completeness; **it cannot independently verify that an AI review is correct**. Human review of evidence and false positives is still required. The suite is not a measured benchmark until blind reviewer runs have been performed.
