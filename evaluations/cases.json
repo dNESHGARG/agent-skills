@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "stale-search",
+      "file": "stale-search.ts",
+      "skills": [
+        "bug-investigation",
+        "concurrency-audit",
+        "code-review"
+      ],
+      "expected": [
+        {
+          "id": "stale-result",
+          "severity": "P2",
+          "trigger": "Two overlapping searches resolve out of order",
+          "invariant": "UI reflects latest query"
+        }
+      ],
+      "false_positive_traps": [
+        "Calling this a multithreaded memory race"
+      ]
+    },
+    {
+      "id": "duplicate-charge",
+      "file": "fixtures/duplicate-charge.ts",
+      "skills": [
+        "code-review"
+      ],
+      "expected": [
+        {
+          "id": "non-idempotent-charge",
+          "severity": "P1",
+          "trigger": "Two identical concurrent payment submissions",
+          "invariant": "One logical checkout creates at most one charge"
+        }
+      ],
+      "false_positive_traps": [
+        "Claiming a client-only loading flag guarantees exactly-once charging"
+      ]
+    },
+    {
+      "id": "actor-reentrancy",
+      "file": "fixtures/actor-reentrancy.swift",
+      "skills": [
+        "swift-concurrency-review",
+        "concurrency-audit"
+      ],
+      "expected": [
+        {
+          "id": "check-then-act",
+          "severity": "P1",
+          "trigger": "Two spend(80) operations overlap at await",
+          "invariant": "Balance cannot become negative"
+        }
+      ],
+      "false_positive_traps": [
+        "Claiming actor isolation prevents reentrancy"
+      ]
+    },
+    {
+      "id": "cache-key",
+      "file": "fixtures/cache-key.py",
+      "skills": [
+        "code-review",
+        "bug-investigation"
+      ],
+      "expected": [
+        {
+          "id": "cache-key-collision",
+          "severity": "P2",
+          "trigger": "Two namespaces share item_id",
+          "invariant": "Cached results remain scoped by namespace"
+        }
+      ],
+      "false_positive_traps": [
+        "Assuming cache entries are automatically namespaced"
+      ]
+    }
+  ]
+}
