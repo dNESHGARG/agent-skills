@@ -1,0 +1,13 @@
+{
+  "case_id": "stale-search",
+  "findings": [
+    {
+      "id": "stale-result",
+      "severity": "P2",
+      "trigger": "An older request resolves after a newer request",
+      "invariant": "Results must match the latest requested query",
+      "fix": "Guard assignment with a monotonically increasing request generation",
+      "test": "Resolve deferred responses in reverse request order"
+    }
+  ]
+}
