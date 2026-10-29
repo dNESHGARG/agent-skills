@@ -1,15 +1,39 @@
 ---
 name: bug-investigation
-description: Investigate a software bug from symptoms through reproducible root cause and verified regression test.
+description: Reproduce and isolate bugs using competing hypotheses, instrumentation, bisecting, and regression tests.
 ---
 
-# Bug investigation
+# Bug investigation — evidence ladder
 
-1. Record expected behavior, actual behavior, environment, and available logs.
-2. Produce the smallest reliable reproduction. If reproduction is impossible, clearly label hypotheses.
-3. Narrow the failing boundary with targeted instrumentation or tests, not broad speculative rewrites.
-4. Identify the root cause and explain why it produces the observed behavior.
-5. Implement the minimal correction only when requested, and add a regression test that fails before the fix and passes after.
-6. Report evidence, residual risks, and any cases not tested.
+## 1. Define the failure
+Record observed/expected behavior, first known bad version, environment, frequency, impact, and reproducible inputs. Separate facts from reporter interpretations. Preserve logs and relevant correlation IDs; redact secrets.
 
-Never invent logs, stack traces, test results, or reproduction steps.
+## 2. Build a hypothesis table
+For each hypothesis capture **prediction**, **discriminating experiment**, **result**, and **confidence**. Favor experiments that eliminate multiple hypotheses cheaply.
+
+| Hypothesis | Prediction | Experiment |
+|---|---|---|
+| Cache key collision | Wrong data only after visiting another account | Log sanitized cache key and compare isolated account sessions |
+| Stale async response | Rapid switching reproduces; slow switching does not | Delay first response and inspect request sequence |
+| Server corruption | Raw API payload already wrong | Compare server response with rendered model |
+
+Do not treat correlation as root cause.
+
+## 3. Isolate the boundary
+Reproduce with smallest input; bisect commits or feature flags if feasible. Trace input -> parse -> transform -> state -> render or storage. Instrument timestamps and request IDs; avoid changing timing so much that the bug disappears.
+
+## 4. Establish causality
+A strong diagnosis has: minimal reproduction, precise mechanism, intervention that removes failure, and regression test that fails before fix and passes after. When one is missing, report confidence explicitly.
+
+## 5. Fix safely
+Prefer the smallest fix that restores the invariant. Check adjacent paths, retries, data migration, and compatibility. Include rollback plan for risky changes.
+
+## Example — stale search results
+User types “ca”, then “cat”; the slower “ca” response arrives last and overwrites “cat”.
+- Experiment: fake network responses; release second response before first.
+- Root cause: completion order used as request order.
+- Fix: associate monotonic request ID with each search and apply only the latest response; cancellation can save work but is not the sole correctness guard.
+- Regression: deterministic deferred promises resolved in reverse order; assert final results match “cat”.
+
+## Deliverable
+**Symptom**, **reproduction**, **root cause/evidence**, **fix**, **regression coverage**, **remaining risks**, **tests actually run**. Never fabricate traces or claim tests passed without execution.
