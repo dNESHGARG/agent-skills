@@ -1,21 +1,21 @@
-# Skill evaluations
+# Engineering review evaluation suite
 
-The fixtures in this directory contain deliberately defective code. They are not examples to copy into production.
+Four deliberately defective fixtures across TypeScript, Swift, and Python cover stale async results, duplicate payment submissions, actor reentrancy, and cache-key collisions.
 
-## Evaluation procedure
+## Blind evaluation protocol
 
-1. Give a reviewer only the selected fixture and its task description, not the expected findings.
-2. Ask for findings using the relevant skill's output contract.
-3. Compare with `expected-findings.md` using the rubric below.
-4. Record false positives, missing defects, evidence quality, and suggested regression tests.
-5. Repeat after every substantial skill change.
+1. Select a case in `cases.json` and its assigned skill.
+2. Give the reviewer only the fixture source and corresponding `SKILL.md`; withhold `expected-findings.md`.
+3. Request the skill's structured findings, with concrete triggers and regression tests.
+4. Score against the answer key: cause + trigger (2), severity (1), fix (1), test (1), minus 1 for unsupported high-severity findings.
+5. Record false positives, missed findings, and disagreements across revisions.
 
-## Scoring rubric (per fixture)
+## Validate
 
-- 2 points: correctly identifies root cause and a concrete triggering scenario.
-- 1 point: severity is proportionate to impact.
-- 1 point: proposed correction preserves the required invariant.
-- 1 point: suggests a regression test that would fail before the fix.
-- Subtract 1 point for each unsupported high-severity finding.
+```bash
+python scripts/validate_evaluations.py
+python scripts/validate_skills.py
+python -m unittest discover -s tests -v
+```
 
-These are human-review criteria, not automated accuracy claims. The current suite is small and synthetic; real pull-request evaluation is still needed.
+This is a small synthetic evaluation suite, not evidence of performance on real pull requests. The validator checks fixture metadata, not AI detection accuracy.
